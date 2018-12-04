@@ -12,13 +12,12 @@ power:
         movl    12(%ebp), %edx      #i
         movl    $1, %eax            #tmp =1
         movl    $0, %ebx            #j=0 
-        testl   %edx, %edx
-        jle     .L3
 .L1:
+        cmpl    %ebx, %edx
+        jle     .L3
         imull   %ecx, %eax
-        leal    1(%ebx), %ebx
-        cmpl    %ebx, %edx           # while(j!=i)
-        jg      .L1    
+        leal    1(%ebx), %ebx       # while(j!=i)
+        jmp     .L1   
 .L3:
         popl    %ebx
         popl    %ebp
@@ -62,10 +61,26 @@ fillarray:
 fillarray2:
         pushl   %ebp
         movl    %esp, %ebp
-
+        pushl   %esi
+        pushl   %edi
         # INSERT YOUR CODE HERE
         # USE REGISTERS FOR LOCAL VARIABLES
-        
+        movl    8(%ebp), %eax   #x
+        movl    12(%ebp), %edx  #a[]
+        movl    16(%ebp), %ecx  #n
+        movl    $1 , %esi    #tmp=1
+        movl    $1 , %edi
+        movl    %esi, (%edx)
+        cmpl    %edi, %ecx
+        jl      .L9
+.L8
+        imull   %eax, %esi
+        movl    %esi, (%edx, %esi, 4)
+        leal    1(%esi), %esi
+        jmp     .L8
+.L9
+        popl    %edi
+        popl    %esi
         popl    %ebp
         ret
         .size   fillarray2, .-fillarray2
