@@ -13,10 +13,10 @@ power:
         movl    $1, %eax            #tmp =1
         movl    $0, %ebx            #j=0 
 .L1:
-        cmpl    %ebx, %edx
+        cmpl    %ebx, %edx           # while(j!=i)
         jle     .L3
         imull   %ecx, %eax
-        leal    1(%ebx), %ebx       # while(j!=i)
+        addl    $1, %ebx      
         jmp     .L1   
 .L3:
         popl    %ebx
@@ -36,23 +36,24 @@ fillarray:
         # USE REGISTERS FOR LOCAL VARIABLES
         subl    $8, %esp
         movl    16(%ebp), %edi  #i
+        testl   %edi, %edi
+        jle     .L6
         movl    $0 , %esi       #j
 .L5:   
-        cmpl    %esi, %edi
-        jl      .L6
-        pushl   %esi
+        movl    %esi, 4(%esp) 
         movl    8(%ebp), %eax   #x
         movl    12(%ebp), %ebx  #a[]
-        pushl    %eax
+        movl    %eax, (%esp)
         call    power
         movl    %eax, (%ebx, %esi, 4)
         leal    1(%esi),  %esi
-        jmp     .L5  
+        cmpl    %esi, %edi
+        jg     .L5
 .L6:
         addl    $8, %esp
-        popl    %edi
-        popl    %esi
         popl    %ebx
+        popl    %esi
+        popl    %edi
         popl    %ebp
         ret
         .size   fillarray, .-fillarray
@@ -71,12 +72,12 @@ fillarray2:
         movl    $1 , %esi    #tmp=1
         movl    $1 , %edi
         movl    %esi, (%edx)
-        cmpl    %edi, %ecx
-        jl      .L9
 .L8:
+        cmpl    %edi, %ecx
+        jle      .L9
         imull   %eax, %esi
-        movl    %esi, (%edx, %esi, 4)
-        leal    1(%esi), %esi
+        movl    %esi, (%edx, %edi, 4)
+        addl     $1, %edi
         jmp     .L8
 .L9:
         popl    %edi
