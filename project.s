@@ -73,12 +73,12 @@ fillarray2:
         movl    %esi, (%edx)
         cmpl    %edi, %ecx
         jl      .L9
-.L8
+.L8:
         imull   %eax, %esi
         movl    %esi, (%edx, %esi, 4)
         leal    1(%esi), %esi
         jmp     .L8
-.L9
+.L9:
         popl    %edi
         popl    %esi
         popl    %ebp
@@ -89,10 +89,29 @@ fillarray2:
 compare:
         pushl   %ebp
         movl    %esp, %ebp
-
+        pushl   %esi
+        pushl   %ebx
         # INSERT YOUR CODE HERE
         # USE REGISTERS FOR LOCAL VARIABLES
-        
+        movl    8(%ebp), %eax   #a[]
+        movl    12(%ebp), %edx  #b[]
+        movl    16(%ebp), %ecx  #N
+        movl    $0, %esi    #i=0
+.L10:
+        cmpl    %esi, %ecx
+        jl      .L11
+        testl   (%eax, %esi, 4), (%edx, %esi, 4)
+        jne     .L12
+        movl    $0, %ebx
+        addl    $1, %esi
+        jmp     .L10
+.L12
+        movl    $1, %ebx
+        jmp     ,L11
+
+.L11:
+        popl    %ebx
+        popl    %esi
         popl    %ebp
         ret
         .size   compare, .-compare
