@@ -91,6 +91,7 @@ compare:
         movl    %esp, %ebp
         pushl   %esi
         pushl   %ebx
+        pushl   %edi
         # INSERT YOUR CODE HERE
         # USE REGISTERS FOR LOCAL VARIABLES
         movl    8(%ebp), %eax   #a[]
@@ -100,16 +101,16 @@ compare:
 .L10:
         cmpl    %esi, %ecx
         jl      .L11
-        testl   (%eax, %esi, 4), (%edx, %esi, 4)
+        movl    (%edx, %esi, 4), %edi
+        testl   (%eax, %esi, 4), %edi
         jne     .L12
         movl    $0, %ebx
         addl    $1, %esi
         jmp     .L10
-.L12
+.L12:
         movl    $1, %ebx
-        jmp     ,L11
-
 .L11:
+        popl    %edi
         popl    %ebx
         popl    %esi
         popl    %ebp
