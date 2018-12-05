@@ -5,21 +5,22 @@
 power:
         pushl   %ebp
         movl    %esp, %ebp
-        pushl   %ebx
         # INSERT YOUR CODE HERE
         # USE REGISTERS FOR LOCAL VARIABLES
-        movl    8(%ebp), %ecx       #x
-        movl    12(%ebp), %edx      #i
-        movl    $1, %eax            #tmp =1
-        movl    $0, %ebx            #j=0 
-.L1:
-        cmpl    %ebx, %edx
+        pushl   %ebx
+        movl    8(%ebp), %ebx
+        movl    12(%ebp), %ecx
+        movl    $0, %edx
+        movl    $1, %eax
+        testl   %ecx, %ecx
         jle     .L3
-        imull   %ecx, %eax
-        leal    1(%ebx), %ebx       # while(j!=i)
-        jmp     .L1   
+.L6:
+        imull   %ebx, %eax
+        leal    1(%edx), %edx
+        cmpl    %edx, %ecx
+        jg      .L6
 .L3:
-        popl    %ebx
+        popl    %ebx 
         popl    %ebp
         ret
         .size   power, .-power
@@ -28,31 +29,31 @@ power:
 fillarray:
         pushl   %ebp
         movl    %esp, %ebp
+        # INSERT YOUR CODE HERE
+        # USE REGISTERS FOR LOCAL VARIABLES
         pushl   %edi
         pushl   %esi
         pushl   %ebx
-
-        # INSERT YOUR CODE HERE
-        # USE REGISTERS FOR LOCAL VARIABLES
-        subl    $8, %esp
-        movl    16(%ebp), %edi  #i
-        movl    $0 , %esi       #j
-.L5:   
-        cmpl    %esi, %edi
-        jl      .L6
-        pushl   %esi
-        movl    8(%ebp), %eax   #x
-        movl    12(%ebp), %ebx  #a[]
-        pushl    %eax
+        addl    $-8, %esp
+        movl    12(%ebp), %edi
+        movl    16(%ebp), %esi
+        testl   %esi, %esi
+        jle     .L11
+        movl    $0, %ebx
+.L10:
+        movl    %ebx, 4(%esp)
+        movl    8(%ebp), %eax
+        movl    %eax, (%esp)
         call    power
-        movl    %eax, (%ebx, %esi, 4)
-        leal    1(%esi),  %esi
-        jmp     .L5  
-.L6:
+        movl    %eax, (%edi,%ebx,4)
+        leal    1(%ebx), %ebx
+        cmpl    %ebx, %esi
+        jg      .L10
+.L11:
         addl    $8, %esp
-        popl    %edi
-        popl    %esi
         popl    %ebx
+        popl    %esi
+        popl    %edi
         popl    %ebp
         ret
         .size   fillarray, .-fillarray
@@ -61,26 +62,27 @@ fillarray:
 fillarray2:
         pushl   %ebp
         movl    %esp, %ebp
+        # USE REGISTERS FOR LOCAL VARIABLES
+        # INSERT YOUR CODE HERE
         pushl   %esi
         pushl   %edi
-        # INSERT YOUR CODE HERE
-        # USE REGISTERS FOR LOCAL VARIABLES
-        movl    8(%ebp), %eax   #x
-        movl    12(%ebp), %edx  #a[]
-        movl    16(%ebp), %ecx  #n
-        movl    $1 , %esi    #tmp=1
-        movl    $1 , %edi
-        movl    %esi, (%edx)
-        cmpl    %edi, %ecx
-        jl      .L9
-.L8:
-        imull   %eax, %esi
-        movl    %esi, (%edx, %esi, 4)
-        leal    1(%esi), %esi
-        jmp     .L8
-.L9:
-        popl    %edi
+        movl    8(%ebp), %esi
+        movl    12(%ebp), %edi
+        movl    16(%ebp), %ecx
+        movl    $1, (%edi)
+        cmpl    $1, %ecx
+        jle     .L16
+        movl    $1, %eax
+        movl    $1, %edx
+.L15:
+        imull   %esi, %edx
+        movl    %edx, (%edi,%eax,4)
+        addl    $1, %eax
+        cmpl    %eax, %ecx
+        jg      .L15
+.L16:
         popl    %esi
+        popl    %edi 
         popl    %ebp
         ret
         .size   fillarray2, .-fillarray2
@@ -89,31 +91,39 @@ fillarray2:
 compare:
         pushl   %ebp
         movl    %esp, %ebp
-        pushl   %esi
         pushl   %ebx
+        pushl   %edi
         # INSERT YOUR CODE HERE
         # USE REGISTERS FOR LOCAL VARIABLES
-        movl    8(%ebp), %eax   #a[]
-        movl    12(%ebp), %edx  #b[]
-        movl    16(%ebp), %ecx  #N
-        movl    $0, %esi    #i=0
-.L10:
-        cmpl    %esi, %ecx
-        jl      .L11
-        testl   (%eax, %esi, 4), (%edx, %esi, 4)
-        jne     .L12
-        movl    $0, %ebx
-        addl    $1, %esi
-        jmp     .L10
-.L12
-        movl    $1, %ebx
-        jmp     ,L11
-
-.L11:
-        popl    %ebx
-        popl    %esi
-        popl    %ebp
-        ret
+        movl    8(%ebp), %edi
+        movl    12(%ebp), %ebx
+        movl    16(%ebp), %ecx
+        testl   %ecx, %ecx
+        jle     .L26
+        movl    (%edi), %eax
+        movl    $0, %edx
+        cmpl    (%ebx), %eax
+        je      .L28
+        jmp     .L27
+.L29:
+        movl    (%edi,%edx,4), %eax
+        cmpl    (%ebx,%edx,4), %eax
+        jne     .L27
+.L28:
+       leal    1(%edx), %edx
+       cmpl    %edx, %ecx
+       jg      .L29
+       jmp     .L26
+.L27:
+       movl    $0, %eax
+       jmp     .L30
+.L26:
+       movl    $1, %eax
+.L30:
+       popl    %edi
+       popl    %ebx 
+       popl    %ebp
+       ret
         .size   compare, .-compare
         .section        .rodata
 .LC0:
