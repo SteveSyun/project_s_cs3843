@@ -11,7 +11,7 @@ power:
         movl    8(%ebp), %ecx       #x
         movl    12(%ebp), %edx      #i
         movl    $1, %eax            #tmp =1
-        movl    $0, %ebx            #j=0 
+        movl    $0, %ebx            #j=0
 .L1:
         cmpl    %ebx, %edx           # while(j!=i)
         jle     .L3
@@ -46,7 +46,7 @@ fillarray:
         movl    %eax, (%esp)
         call    power
         movl    %eax, (%ebx, %esi, 4)
-        leal    1(%esi),  %esi
+        incl    %esi
         cmpl    %esi, %edi
         jg     .L5
 .L6:
@@ -95,21 +95,30 @@ compare:
         pushl   %edi
         # INSERT YOUR CODE HERE
         # USE REGISTERS FOR LOCAL VARIABLES
-        movl    8(%ebp), %eax   #a[]
+        movl    8(%ebp), %edi   #a[]
         movl    12(%ebp), %edx  #b[]
         movl    16(%ebp), %ecx  #N
+        testl   %ecx, %ecx
+        jle     .L12
+        movl    (%edi), %eax
         movl    $0, %esi    #i=0
+        cmpl    (%edx), %eax
+        je      .L13
+        jmp     .L15
 .L10:
-        cmpl    %esi, %ecx
-        jl      .L11
-        movl    (%edx, %esi, 4), %edi
-        testl   (%eax, %esi, 4), %edi
-        jne     .L12
-        movl    $0, %ebx
+        movl    (%edi, %esi, 4), %eax
+        cmpl   (%edx, %esi, 4), %eax
+        jne     .L15
+.L13:
         addl    $1, %esi
-        jmp     .L10
+        cmpl    %esi, %ecx
+        jg      .L10
+        jmp     .L12
+.L15:
+        movl    $0, %eax
+        jmp     .L11
 .L12:
-        movl    $1, %ebx
+        movl    $1, %eax
 .L11:
         popl    %edi
         popl    %ebx
@@ -193,7 +202,8 @@ main:
         movl    $10, 8(%esp)
         leal    112(%esp), %eax
         movl    %eax, 4(%esp)
-        leal    72(%esp), %eax
+         leal    72(%esp), %eax
+       # leal     112(%esp), %eax
         movl    %eax, (%esp)
         call    compare
         cmpl    $1, %eax
